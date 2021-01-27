@@ -2,7 +2,7 @@ var expect = require('chai').expect;
 
 const character = require('../dist/');
 const diceTrialCount = 100;
-const characterClasses = ['Deft', 'Strong', 'Wise'];
+const characterClasses = ['Deft']; //['Deft', 'Strong', 'Wise'];
 const characterLevels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 describe('Helper Functions', () => {
@@ -111,27 +111,37 @@ describe('Base Character Class', () => {
     
             expect(char.attributes.strength.score).to.be.a('number');
             expect(char.attributes.strength.score).to.be.at.least(3);
-            expect(char.attributes.strength.score).to.be.at.most(18);
             
             expect(char.attributes.dexterity.score).to.be.a('number');
             expect(char.attributes.dexterity.score).to.be.at.least(3);
-            expect(char.attributes.dexterity.score).to.be.at.most(18);
             
             expect(char.attributes.constitution.score).to.be.a('number');
             expect(char.attributes.constitution.score).to.be.at.least(3);
-            expect(char.attributes.constitution.score).to.be.at.most(18);
             
             expect(char.attributes.intelligence.score).to.be.a('number');
             expect(char.attributes.intelligence.score).to.be.at.least(3);
-            expect(char.attributes.intelligence.score).to.be.at.most(18);
             
             expect(char.attributes.wisdom.score).to.be.a('number');
             expect(char.attributes.wisdom.score).to.be.at.least(3);
-            expect(char.attributes.wisdom.score).to.be.at.most(18);
             
             expect(char.attributes.charisma.score).to.be.a('number');
             expect(char.attributes.charisma.score).to.be.at.least(3);
-            expect(char.attributes.charisma.score).to.be.at.most(18);
+
+            if (char.level === 1) {
+              expect(char.attributes.strength.score).to.be.at.most(18);
+              expect(char.attributes.dexterity.score).to.be.at.most(18);
+              expect(char.attributes.constitution.score).to.be.at.most(18);
+              expect(char.attributes.intelligence.score).to.be.at.most(18);
+              expect(char.attributes.wisdom.score).to.be.at.most(18);
+              expect(char.attributes.charisma.score).to.be.at.most(18);
+            } else {
+              expect(char.attributes.strength.score).to.be.at.most(24);
+              expect(char.attributes.dexterity.score).to.be.at.most(24);
+              expect(char.attributes.constitution.score).to.be.at.most(24);
+              expect(char.attributes.intelligence.score).to.be.at.most(24);
+              expect(char.attributes.wisdom.score).to.be.at.most(24);
+              expect(char.attributes.charisma.score).to.be.at.most(24);
+            }
           }
         })
       })
@@ -343,4 +353,66 @@ describe('Base Character Class', () => {
       })
     });
   });
+
+  describe('#generateInventory()', () => {
+    it('should create a Character object with an inventory array', () => {
+      characterClasses.forEach(characterClass => {
+        characterLevels.forEach(characterLevel => {
+          let char = new character.Character(characterLevel, characterClass);
+
+          // FIXME populate this test.
+        });
+      });
+    });
+  });
+
+  describe('#generateWealth()', () => {
+    it('should create a Character object with a currency object', () => {
+      characterClasses.forEach(characterClass => {
+        characterLevels.forEach(characterLevel => {
+          let char = new character.Character(characterLevel, characterClass);
+
+          // FIXME populate this test.
+        });
+      });
+    });
+  });
+
+  describe('#generateName()', () => {
+    it('should create a Character object with a name string', () => {
+      characterClasses.forEach(characterClass => {
+        characterLevels.forEach(characterLevel => {
+          let char = new character.Character(characterLevel, characterClass);
+
+          // FIXME populate this test.
+        });
+      });
+    });
+  });
+
+  describe('#generateDescriptors()', () => {
+    it('should create a Character object with a descriptor array', () => {
+      characterClasses.forEach(characterClass => {
+        characterLevels.forEach(characterLevel => {
+          let char = new character.Character(characterLevel, characterClass);
+
+          // FIXME populate this test.
+        });
+      });
+    });
+  });
+
+  describe('#generateLanguages()', () => {
+    it('should create a Character object with a language array', () => {
+      characterClasses.forEach(characterClass => {
+        characterLevels.forEach(characterLevel => {
+          let char = new character.Character(characterLevel, characterClass);
+
+          // FIXME populate this test.
+        });
+      });
+    });
+  });
 });
+
+// FIXME add tests for leveling

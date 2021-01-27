@@ -1353,7 +1353,7 @@ const defaultConfig = {
 class Character {
   constructor(level, characterClass, config = defaultConfig) {
     // Initialize basic character parameters.
-    this.level = level;
+    this.level = 1;
     this.characterClass = characterClass;
     this.config = config;
     this.config.attributes = ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma'];
@@ -1386,6 +1386,11 @@ class Character {
     this.generateName();
     this.generateDescriptors();
     this.generateLanguages();
+
+    // Now, we increase the character's level until it matches the desired target.
+    while (this.level < level) {
+      this.increaseLevel()
+    }
   }
 
   characterClassTableEntry(level = null) {
@@ -1574,6 +1579,7 @@ class Character {
   getAvailableAttributes(maxGroups = 2) {
     // Randomly select an attribute which still has room for groups.
     // FIXME there must be a cleaner way to do this.
+    // FIXME change this to a getter?
     let strengthCount = 0;
     let dexterityCount = 0;
     let constitutionCount = 0;
@@ -1627,6 +1633,7 @@ class Character {
   }
 
   getAvailableAttribute(maxGroups = 2) {
+    // FIXME change this to a getter?
     return this.getAvailableAttributes().random(maxGroups);
   }
 
@@ -1664,25 +1671,29 @@ class Character {
     // Default and species languages are granted in generateSpecies().
     // These languages are just for high intelligence: 1 for 13+, or 2 for 16+.
     if (this.attributes.intelligence.score >= 16) {
-        var count = 2;
+      var count = 2;
     } else if (this.attributes.intelligence.score >= 13) {
-        var count = 1;
+      var count = 1;
     } else {
-        var count = 0;
+      var count = 0;
     }
 
     for (let i = 0; i < count; i++) {
-        // Randomly choose a language.
-        let language = this.config.languages.random();
-
-        while (this.languages.includes(language)) {
-            // This language is already in the character's lexicon. Choose a new one.
-            language = this.config.languages.random();
-        }
-
-        this.languages.push(language);
+      this.addLanguage();
     }
-}
+  }
+
+  addLanguage() {
+    // Randomly choose a language.
+    let language = this.config.languages.random();
+
+    while (this.languages.includes(language)) {
+      // This language is already in the character's lexicon. Choose a new one.
+      language = this.config.languages.random();
+    }
+
+    this.languages.push(language);
+  }
 
   generateVocation(hasAttribute = true) {
     // Remove any existing vocation.
@@ -1756,7 +1767,7 @@ class Character {
 
     // If Strong, get abilities.
     if (this.characterClass === 'Strong') {
-      this.generateAbilities(this.slotCount.base, 0);
+      this.generateAbilities(this.slotCount.base);
     }
 
     // If Wise, get miracles and inactive miracles and bonus inactive miracles.
@@ -1814,7 +1825,7 @@ class Character {
     }
   }
 
-  generateAbilities(activeCount, inactiveCount) {
+  generateAbilities(activeCount, inactiveCount = 0) {
     // Add active abilities.
     for (let i = 0; i < activeCount; i++) {
       this.addAbility(true);
@@ -1974,6 +1985,98 @@ class Character {
     }
 
     this.descriptors = [...new Set(traits)].shuffle(); // Convert to a set (to filter out any duplicate values) then back to an array.
+  }
+
+  increaseLevel() {
+    if (this.level == 10) {
+      return;
+    }
+
+    let oldCharacterClassTableEntry = this.characterClassTableEntry(); // FIXME create a complete history by level.
+    let oldHitPoints = this.hitPoints;
+    let oldAttributes = this.attributes;
+    let oldGroupCount = this.groupCount;
+    let oldSlotCount = this.slotCount;
+    let oldLevel = this.level;
+    this.level += 1;
+
+    // Before anything else, if a raise is available, use it to increase a random attribute.
+    // Need to do this before anything else because it can affect everything from hit points
+    // to bonus groups.
+    let characterClassTableEntry = this.characterClassTableEntry();
+    let raises = characterClassTableEntry.raises - oldCharacterClassTableEntry.raises;
+    if (raises > 0) {
+      for (let i = 0; i < raises; i++) {
+        // Randomly select an attribute and increase it.
+        let randomAttributeNum = Math.floor(Math.random()*6 + 1);
+        if (randomAttributeNum === 1) {
+          this.attributes.strength.score += 1;
+        } else if (randomAttributeNum === 2) {
+          this.attributes.dexterity.score += 1;
+        } else if (randomAttributeNum === 3) {
+          this.attributes.constitution.score += 1;
+        } else if (randomAttributeNum === 4) {
+          this.attributes.intelligence.score += 1;
+        } else if (randomAttributeNum === 5) {
+          this.attributes.wisdom.score += 1;
+        } else if (randomAttributeNum === 6) {
+          this.attributes.charisma.score += 1;
+        }
+      }
+    }
+
+    // Re-roll hit dice. If the new value is less than the old value,
+    // then just keep the old value.
+    this.generateHitDice();
+    this.generateHitPoints();
+
+    if (this.hitPoints < oldHitPoints) {
+      this.hitPoints = oldHitPoints;
+    }
+
+    // Update other vital statistics.
+    this.generateAttackValue();
+    this.generateSavingThrow();
+    this.generateGroupCount();
+    this.generateSlotCount();
+
+    // Check a few things regarding new group count.
+    // - The bonus group count may be lower due to raises, in which case we need to remove a bonus group.
+    // - The base group count may be higher, in which case we need to add a group.
+    if (this.groupCount.bonus < oldGroupCount.bonus) {
+      // Remove a bonus group.
+      // Randomly select one group that's a bonus group.
+      this.groups.pop(); // FIXME change to remove a bonus group at random, not just the last group.
+    }
+
+    if (this.groupCount.base > oldGroupCount.base) {
+      // Add a new group. Cannot add a species later on, and vocation is typically
+      // added at character creation, so we add an affiliation.
+      this.addAffiliation();
+    }
+
+    // Check new slot count. If it's higher than the old slot count, then we
+    // need to add new slots to compensate.
+    if (this.characterClass === 'Deft') {
+      let newActiveCount = Math.max(this.slotCount.base - oldSlotCount.base, 0);
+      let newInactiveCount = Math.max(this.slotCount.inactive - oldSlotCount.inactive, 0);
+      this.generateAttunements(newActiveCount, newInactiveCount);
+    } else if (this.characterClass === 'Strong') {
+      let newActiveCount = Math.max(this.slotCount.base - oldSlotCount.base, 0);
+      this.generateAbilities(newActiveCount);
+    } else if (this.characterClass === 'Wise') {
+      let newActiveCount = Math.max(this.slotCount.base - oldSlotCount.base, 0);
+      let newInactiveCount = Math.max(this.slotCount.inactive + this.slotCount.bonusInactive - oldSlotCount.inactve - oldSlotCount.bonusInactive, 0);
+      this.generateMiracles(newActiveCount, newInactiveCount);
+    }
+
+    // Check intelligence score.
+    // If character has reached a new cutoff (13 or 16) then we need to add a new language.
+    if (this.attributes.intelligence.score >= 16 && oldAttributes.intelligence.score < 16) {
+      this.addLanguage();
+    } else if (this.attributes.intelligence.score >= 13 && oldAttributes.intelligence.score < 13) {
+      this.addLanguage();
+    }
   }
 }
 
