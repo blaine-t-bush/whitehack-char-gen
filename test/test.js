@@ -198,42 +198,6 @@ describe('Base Character Class', () => {
     });
   });
 
-  describe('#generateSlotCount()', () => {
-    it('should create a Character object with appropriate number of slots for class, level, and attribute scores', () => {
-      characterClasses.forEach(characterClass => {
-        characterLevels.forEach(characterLevel => {
-          let char = new character.Character(characterLevel, characterClass); // generateSlotCount() is called in the constructor.
-  
-          expect(char.slotCount).to.be.a('object');
-
-          expect(char.slotCount).to.have.property('base');
-          expect(char.slotCount.base).to.be.a('number');
-          expect(char.slotCount.base).to.be.at.least(1);
-          expect(char.slotCount.base).to.be.at.most(5);
-
-          expect(char.slotCount).to.have.property('inactive');
-          if (characterClass == 'Deft' || characterClass === 'Wise') {
-            expect(char.slotCount.inactive).to.be.a('number');
-            expect(char.slotCount.inactive).to.be.at.least(1);
-            expect(char.slotCount.inactive).to.be.at.most(5);
-            expect(char.slotCount.inactive).to.be.equal(char.slotCount.base);
-          } else {
-            expect(char.slotCount.inactive).to.be.equal(null);
-          }
-
-          expect(char.slotCount).to.have.property('bonusInactive');
-          if (characterClass === 'Wise') {
-            expect(char.slotCount.bonusInactive).to.be.a('number');
-            expect(char.slotCount.bonusInactive).to.be.at.least(0);
-            expect(char.slotCount.bonusInactive).to.be.at.most(2);
-          } else {
-            expect(char.slotCount.bonusInactive).to.be.equal(null);
-          }
-        })
-      })
-    });
-  });
-
   describe('#generateGroupCount()', () => {
     it('should create a Character object with appropriate number of groups for class, level, and attribute scores', () => {
       characterClasses.forEach(characterClass => {
@@ -256,11 +220,47 @@ describe('Base Character Class', () => {
     });
   });
 
+  describe('#generateSlotCount()', () => {
+    it('should create a Character object with appropriate number of slots for class, level, and attribute scores', () => {
+      characterClasses.forEach(characterClass => {
+        characterLevels.forEach(characterLevel => {
+          let char = new character.Character(characterLevel, characterClass); // generateSlotCount() is called in the constructor.
+  
+          expect(char.slotCount).to.be.a('object');
+
+          expect(char.slotCount).to.have.property('base');
+          expect(char.slotCount.base).to.be.a('number');
+          expect(char.slotCount.base).to.be.at.least(1);
+          expect(char.slotCount.base).to.be.at.most(5);
+
+          expect(char.slotCount).to.have.property('inactive');
+          if (characterClass == 'Deft' || characterClass === 'Wise') {
+            expect(char.slotCount.inactive).to.be.a('number');
+            expect(char.slotCount.inactive).to.be.at.least(1);
+            expect(char.slotCount.inactive).to.be.at.most(5);
+            expect(char.slotCount.inactive).to.equal(char.slotCount.base);
+          } else {
+            expect(char.slotCount.inactive).to.equal(null);
+          }
+
+          expect(char.slotCount).to.have.property('bonusInactive');
+          if (characterClass === 'Wise') {
+            expect(char.slotCount.bonusInactive).to.be.a('number');
+            expect(char.slotCount.bonusInactive).to.be.at.least(0);
+            expect(char.slotCount.bonusInactive).to.be.at.most(2);
+          } else {
+            expect(char.slotCount.bonusInactive).to.equal(null);
+          }
+        })
+      })
+    });
+  });
+
   describe('#generateGroups()', () => {
     it('should create a Character object with appropriate groups for class, level, and attribute scores', () => {
       characterClasses.forEach(characterClass => {
         characterLevels.forEach(characterLevel => {
-          let char = new character.Character(characterLevel, characterClass); // generateGroupCount() is called in the constructor.
+          let char = new character.Character(characterLevel, characterClass); // generateGroups() is called in the constructor.
   
           expect(char.groups).to.be.a('array');
           expect(char.groups).to.have.lengthOf(char.groupCount.base + char.groupCount.bonus);
@@ -269,7 +269,7 @@ describe('Base Character Class', () => {
             expect(group.type).to.be.a('string');
             expect(group.type).to.be.oneOf(['Species', 'Vocation', 'Affiliation']);
             if (characterClass === 'Deft' && group.type === 'Vocation') {
-              expect(group.attributes).to.be.equal(null);
+              expect(group.attributes).to.equal(null);
             } else {
               expect(group.attributes).to.be.a('array');
               group.attributes.forEach(attribute => {
@@ -278,6 +278,67 @@ describe('Base Character Class', () => {
               })
             }
           })
+
+          // Should have correct number of bonus groups.
+          let bonusCount = 0;
+          char.groups.forEach(group => {
+            if (group.isBonus) {
+              bonusCount++;
+            }
+          });
+          expect(char.groupCount.bonus).to.equal(bonusCount);
+        })
+      })
+    });
+  });
+
+  describe('#generateSlots()', () => {
+    it('should create a Character object with appropriate slots for class, level, and attribute scores', () => {
+      characterClasses.forEach(characterClass => {
+        characterLevels.forEach(characterLevel => {
+          let char = new character.Character(characterLevel, characterClass); // generateSlots() is called in the constructor.
+
+          expect(char.slots).to.be.a('array');
+          expect(char.slots).to.have.lengthOf(char.slotCount.base + char.slotCount.inactive + char.slotCount.bonusInactive);
+          char.slots.forEach(slot => {
+            expect(slot.name).to.be.a('string');
+            expect(slot.type).to.be.a('string');
+            expect(slot.type).to.be.oneOf(['Attunement', 'Ability', 'Miracle']);
+            expect(slot.isActive).to.be.a('boolean');
+
+            // Slot should be of type appropriate to class.
+            if (characterClass === 'Deft') {
+              expect(slot.type).to.equal('Attunement');
+            } else if (characterClass === 'Strong') {
+              expect(slot.type).to.equal('Ability');
+            } else if (characterClass === 'Wise') {
+              expect(slot.type).to.equal('Miracle');
+            }
+          })
+
+          // No two slots hsould have the same name.
+          // FIXME re-enable this after updating generateSlots().
+          // let slotNames = [];
+          // char.slots.forEach(slot => {
+          //   slotNames.push(slot.name);
+          // })
+          // let slotNamesDistinct = [...new Set(slotNames)];
+          // expect(slotNames).to.equal(slotNamesDistinct);
+
+          // Number of active slots should be equal to slotCount.base
+          // Number of inactive slots should be equal to slotCount.inactive + slotCount.bonusInactive.
+          let activeCount = 0;
+          let inactiveCount = 0;
+          char.slots.forEach(slot => {
+            if (slot.isActive) {
+              activeCount++;
+            } else {
+              inactiveCount++;
+            }
+          })
+
+          expect(activeCount).to.equal(char.slotCount.base);
+          expect(inactiveCount).to.equal(char.slotCount.inactive + char.slotCount.bonusInactive);
         })
       })
     });
