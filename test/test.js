@@ -46,7 +46,7 @@ describe('Base Character Class', () => {
       characterClasses.forEach(characterClass => {
         characterLevels.forEach(characterLevel => {
           let char = new character.Character(characterLevel, characterClass);
-          let entry = char.characterClassTableEntry();
+          let entry = char.characterClassTableEntry;
   
           expect(entry).to.be.a('object');
 

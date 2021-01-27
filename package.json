@@ -1,17 +1,28 @@
 {
   "name": "whitehack-char-gen",
-  "version": "1.0.0",
+  "version": "1.1.4",
   "description": "A class for generating and updating characters in Christian Mehrstam's Whitehack RPG.",
   "main": "./dist/index.js",
+  "keywords": [
+    "javascript",
+    "random",
+    "generator",
+    "whitehack",
+    "rpg",
+    "fantasy"
+  ],
   "scripts": {
     "build": "babel src --presets babel-preset-env --out-dir dist",
     "prepublish": "npm run build",
     "test": "npm run build && mocha"
   },
-  "author": "Blaine Bush",
+  "author": "Blaine Bush <blaine.bush@gmail.com>",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/blaine-t-bush/whitehack-char-gen/issues"
+  },
+  "homepage": "https://github.com/blaine-t-bush/whitehack-char-gen#readme",
   "devDependencies": {
-    "assert": "^2.0.0",
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "chai": "^4.2.0",

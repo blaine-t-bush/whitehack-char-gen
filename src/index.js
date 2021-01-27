@@ -36,7 +36,7 @@ function d(size, count = 1, double = null) {
 }
 
 const defaultConfig = {
-  nonHumanSpeciesChance: 0.2, // Percent chance to get any non-default species.
+  nonDefaultSpeciesChance: 0.2, // Percent chance to get any non-default species.
   hybridSpeciesChance: 0.4, // If a non-default species is selected, the percent chance to be a hybrid with the default species. In that case, the species group is attached only to one attribute.
   defaultSpecies: { name: 'Human', language: 'Common' },
   otherSpecies: [
@@ -1352,11 +1352,16 @@ const defaultConfig = {
 
 class Character {
   constructor(level, characterClass, config = defaultConfig) {
+    this.config = config;
+    this.config.attributes = ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma'];
+    this.generate(level, characterClass);
+  }
+
+  generate(level, characterClass) {
     // Initialize basic character parameters.
     this.level = 1;
     this.characterClass = characterClass;
-    this.config = config;
-    this.config.attributes = ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma'];
+    this.inventory = []; // Fresh slate inventory. Cannot be cleared after slot generation, since some Deft characters may be attuned to items which need to be added to inventory.
 
     // FIXME add checks on config.
     //  - need at least 8 categories of attunements
@@ -1391,14 +1396,11 @@ class Character {
     while (this.level < level) {
       this.increaseLevel()
     }
+
   }
 
-  characterClassTableEntry(level = null) {
-    if (!level) {
-      var level = this.level;
-    }
-
-    return this.config.classTables.filter(entry => entry.level === level && entry.characterClass === this.characterClass)[0];
+  get characterClassTableEntry() {
+    return this.config.classTables.filter(entry => entry.level === this.level && entry.characterClass === this.characterClass)[0];
   }
 
   generateAttributes() {
@@ -1443,9 +1445,54 @@ class Character {
     this.attributes.charisma.score     = d(6, 3);
   }
 
+  get attributesWithGroups() {
+    // Loop through attributes.
+    // For each attribute, loop through groups.
+    // For each group, check if assigned attribute matches loop attribute.
+    // If so, append it to this attribute.
+    return {
+      strength: {
+        name: this.attributes.strength.name,
+        abbreviation: this.attributes.strength.abbreviation,
+        score: this.attributes.strength.score,
+        groups: this.groups.filter(group => (group.attributes === null ? [] : group.attributes).includes(this.attributes.strength.name)).map(group => group.name),
+      },
+      dexterity: {
+        name: this.attributes.dexterity.name,
+        abbreviation: this.attributes.dexterity.abbreviation,
+        score: this.attributes.dexterity.score,
+        groups: this.groups.filter(group => (group.attributes === null ? [] : group.attributes).includes(this.attributes.dexterity.name)).map(group => group.name),
+      },
+      constitution: {
+        name: this.attributes.constitution.name,
+        abbreviation: this.attributes.constitution.abbreviation,
+        score: this.attributes.constitution.score,
+        groups: this.groups.filter(group => (group.attributes === null ? [] : group.attributes).includes(this.attributes.constitution.name)).map(group => group.name),
+      },
+      intelligence: {
+        name: this.attributes.intelligence.name,
+        abbreviation: this.attributes.intelligence.abbreviation,
+        score: this.attributes.intelligence.score,
+        groups: this.groups.filter(group => (group.attributes === null ? [] : group.attributes).includes(this.attributes.intelligence.name)).map(group => group.name),
+      },
+      wisdom: {
+        name: this.attributes.wisdom.name,
+        abbreviation: this.attributes.wisdom.abbreviation,
+        score: this.attributes.wisdom.score,
+        groups: this.groups.filter(group => (group.attributes === null ? [] : group.attributes).includes(this.attributes.wisdom.name)).map(group => group.name),
+      },
+      charisma: {
+        name: this.attributes.charisma.name,
+        abbreviation: this.attributes.charisma.abbreviation,
+        score: this.attributes.charisma.score,
+        groups: this.groups.filter(group => (group.attributes === null ? [] : group.attributes).includes(this.attributes.charisma.name)).map(group => group.name),
+      },
+    }
+  }
+
   generateHitDice() {
     // Look up hit dice and bonus hit points in class tables.
-    let characterClassTableEntry = this.characterClassTableEntry();
+    let characterClassTableEntry = this.characterClassTableEntry;
 
     this.hitDice = {
       base: characterClassTableEntry.hitDice,  // Base hit dice from class, e.g. 1 for a level 1 Strong's HD 1+2.
@@ -1474,7 +1521,7 @@ class Character {
 
   generateAttackValue() {
     // Look up attack value in class tables.
-    let characterClassTableEntry = this.characterClassTableEntry();
+    let characterClassTableEntry = this.characterClassTableEntry;
     this.attackValue = characterClassTableEntry.attackValue;
 
     // Add bonus AV for high-strength Strong.
@@ -1485,13 +1532,13 @@ class Character {
 
   generateSavingThrow() {
     // Look up saving throw in class tables.
-    let characterClassTableEntry = this.characterClassTableEntry();
+    let characterClassTableEntry = this.characterClassTableEntry;
     this.savingThrow = characterClassTableEntry.savingThrow;
   }
 
   generateGroupCount() {
     // Look up group count in class tables.
-    let characterClassTableEntry = this.characterClassTableEntry();
+    let characterClassTableEntry = this.characterClassTableEntry;
     this.groupCount = {
       base: characterClassTableEntry.groups,
       bonus: 0,
@@ -1525,7 +1572,7 @@ class Character {
 
   generateSlotCount() {
     // Look up slot count in class tables.
-    let characterClassTableEntry = this.characterClassTableEntry();
+    let characterClassTableEntry = this.characterClassTableEntry;
     this.slotCount = {
       base: characterClassTableEntry.slots,
       inactive: null,
@@ -1576,10 +1623,9 @@ class Character {
     this.generateAffiliations(remainingGroupCount - this.groupCount.bonus, this.groupCount.bonus);
   }
 
-  getAvailableAttributes(maxGroups = 2) {
+  get availableAttributes() {
     // Randomly select an attribute which still has room for groups.
     // FIXME there must be a cleaner way to do this.
-    // FIXME change this to a getter?
     let strengthCount = 0;
     let dexterityCount = 0;
     let constitutionCount = 0;
@@ -1610,31 +1656,26 @@ class Character {
     }
 
     let availableAttributes = this.config.attributes;
-    if (strengthCount >= maxGroups) {
+    if (strengthCount >= 2) {
       availableAttributes = availableAttributes.filter(attribute => attribute !== 'Strength');
     }
-    if (dexterityCount >= maxGroups) {
+    if (dexterityCount >= 2) {
       availableAttributes = availableAttributes.filter(attribute => attribute !== 'Dexterity');
     }
-    if (constitutionCount >= maxGroups) {
+    if (constitutionCount >= 2) {
       availableAttributes = availableAttributes.filter(attribute => attribute !== 'Constitution');
     }
-    if (intelligenceCount >= maxGroups) {
+    if (intelligenceCount >= 2) {
       availableAttributes = availableAttributes.filter(attribute => attribute !== 'Intelligence');
     }
-    if (wisdomCount >= maxGroups) {
+    if (wisdomCount >= 2) {
       availableAttributes = availableAttributes.filter(attribute => attribute !== 'Wisdom');
     }
-    if (charismaCount >= maxGroups) {
+    if (charismaCount >= 2) {
       availableAttributes = availableAttributes.filter(attribute => attribute !== 'Charisma');
     }
 
     return availableAttributes;
-  }
-
-  getAvailableAttribute(maxGroups = 2) {
-    // FIXME change this to a getter?
-    return this.getAvailableAttributes().random(maxGroups);
   }
 
   generateSpecies(isDefault = true) {
@@ -1649,10 +1690,10 @@ class Character {
       var species = this.config.otherSpecies.random();
 
       // Randomly select two attributes (or only one if a hybrid, e.g. half-elf) to attach species group to.
-      let firstAttribute = this.getAvailableAttribute();
-      let secondAttribute = this.getAvailableAttributes().filter(attribute => attribute !== firstAttribute).random();
+      let firstAttribute = this.availableAttributes.random();
+      let secondAttribute = this.availableAttributes.filter(attribute => attribute !== firstAttribute).random();
       let attributes = [firstAttribute];
-      if (Math.random() < this.config.hybridSpeciesChance) {
+      if (Math.random() <= this.config.hybridSpeciesChance) {
         attributes.push(secondAttribute);
       }
 
@@ -1663,8 +1704,16 @@ class Character {
       });
     }
 
-    this.species = species.name;
     this.languages = [species.language];
+  }
+
+  get species() {
+    let species = this.groups.filter(group => group.type === 'Species');
+    if (species.length === 0) {
+      return this.config.defaultSpecies.name;
+    } else {
+      return species[0].name;
+    }
   }
 
   generateLanguages() {
@@ -1702,7 +1751,7 @@ class Character {
     // Randomly select an attribute to attach to, unless that
     // argument has been overridden (e.g. in the case of Deft characters).
     if (hasAttribute) {
-      var attributes = [this.getAvailableAttribute()];
+      var attributes = [this.availableAttributes.random()];
     } else {
       var attributes = null;
     }
@@ -1715,7 +1764,11 @@ class Character {
     });
   }
 
-  getAffiliations() {
+  get vocation() {
+    return this.groups.filter(group => group.type === 'Vocation').map(group => group.name)[0];
+  }
+
+  get affiliations() {
     let affiliations = [];
 
     this.groups.forEach(group => {
@@ -1746,13 +1799,13 @@ class Character {
 
   addAffiliation(isBonus = false) {
     // Randomly select an affiliation that hasn't already been selected.
-    let availableAffiliations = this.config.affiliations.filter(affiliation => !this.getAffiliations().includes(affiliation));
+    let availableAffiliations = this.config.affiliations.filter(affiliation => !this.affiliations.includes(affiliation));
 
     // Add it to an attribute that doesn't already have two groups.
     this.groups.push({
       name: availableAffiliations.random(),
       type: 'Affiliation',
-      attributes: [this.getAvailableAttribute()],
+      attributes: [this.availableAttributes.random()],
       isBonus: isBonus,
     });
   }
@@ -1992,18 +2045,19 @@ class Character {
       return;
     }
 
-    let oldCharacterClassTableEntry = this.characterClassTableEntry(); // FIXME create a complete history by level.
+    let oldCharacterClassTableEntry = this.characterClassTableEntry; // FIXME create a complete history by level.
     let oldHitPoints = this.hitPoints;
     let oldAttributes = this.attributes;
     let oldGroupCount = this.groupCount;
     let oldSlotCount = this.slotCount;
-    let oldLevel = this.level;
-    this.level += 1;
 
+    this.level += 1;
+    this.xp = this.characterClassTableEntry.xp; // FIXME allow updating XP manually and changing level accordingly.
+    
     // Before anything else, if a raise is available, use it to increase a random attribute.
     // Need to do this before anything else because it can affect everything from hit points
     // to bonus groups.
-    let characterClassTableEntry = this.characterClassTableEntry();
+    let characterClassTableEntry = this.characterClassTableEntry;
     let raises = characterClassTableEntry.raises - oldCharacterClassTableEntry.raises;
     if (raises > 0) {
       for (let i = 0; i < raises; i++) {
@@ -2078,36 +2132,6 @@ class Character {
       this.addLanguage();
     }
   }
-}
-
-class Deft extends Character {
-    constructor(level) {
-        super(level, 'Deft');
-    }
-}
-
-class Strong extends Character {
-    constructor(level) {
-        super(level, 'Strong');
-    }
-}
-
-class Wise extends Character {
-    constructor(level) {
-        super(level, 'Wise');
-    }
-}
-
-class Brave extends Character {
-    constructor(level) {
-        super(level, 'Brave');
-    }
-}
-
-class Fortunate extends Character {
-    constructor(level) {
-        super(level, 'Fortunate');
-    }
 }
 
 module.exports = {
