@@ -105,8 +105,8 @@ Array of objects with properties `category` and `value`. These are used to add q
 #### preventDuplicateAttunementCategories
 Boolean, by default `true`. When `true`, prevents descriptors from the same category being assigned. When `false`, descriptors from the same category *can* be assigned, so `descriptors` need only have 3 unique entries, not 3 unique categories.
 
-### descriptorsCount
+#### descriptorsCount
 Integer, by default `3`. Number of descriptors to generate.
 
 ## License
-Whitehack 2nd Edition is copyright 2015 Christian Merhstam.
+Whitehack 2nd Edition is copyright 2015 Christian Merhstam. Its mechanisms are Open Game Content.
