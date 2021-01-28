@@ -126,6 +126,7 @@ const defaultConfig = {
     "Fog Walkers",
     "Church of St. Lune",
   ],
+  preventDuplicateAttunementCategories: true,
   attunements: [
     // Magical items
     { category: "magic", name: "Crystal ball", isItem: true },
@@ -1240,6 +1241,8 @@ const defaultConfig = {
       "Oakeshott",
     ]
   },
+  preventDuplicateDescriptorCategories: true,
+  descriptorsCount: 3,
   descriptors: [
     // Complexion
     { category: "complexion", value: "Pale as a ghost" },
@@ -1351,8 +1354,9 @@ const defaultConfig = {
 };
 
 class Character {
-  constructor(level, characterClass, config = defaultConfig) {
-    this.config = config;
+  constructor(level, characterClass, config = {}) {
+    // Merge defaultConfig with any override options from config argument.
+    this.config = Object.assign({}, defaultConfig, config);
     this.config.attributes = ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma'];
     this.generate(level, characterClass);
   }
@@ -1360,6 +1364,7 @@ class Character {
   generate(level, characterClass) {
     // Initialize basic character parameters.
     this.level = 1;
+    this.xp = 0;
     this.characterClass = characterClass;
     this.inventory = []; // Fresh slate inventory. Cannot be cleared after slot generation, since some Deft characters may be attuned to items which need to be added to inventory.
 
@@ -1685,6 +1690,8 @@ class Character {
     if (isDefault) {
       // Simply choose the default species option. It does not count as a group.
       var species = this.config.defaultSpecies;
+
+      this.languages = [species.language];
     } else {
       // Randomly select a non-default species.
       var species = this.config.otherSpecies.random();
@@ -1702,9 +1709,9 @@ class Character {
         type: 'Species',
         attributes: attributes,
       });
-    }
 
-    this.languages = [species.language];
+      this.languages = [this.config.defaultSpecies.language, species.language];
+    }
   }
 
   get species() {
@@ -1780,6 +1787,10 @@ class Character {
     return affiliations;
   }
 
+  get bonusGroups() {
+    return this.groups.filter(group => group.isBonus);
+  }
+
   generateAffiliations(count, bonusCount = 0) {
     // Remove any existing affiliations.
     this.groups = this.groups.filter(group => group.type !== 'Affiliation');
@@ -1844,7 +1855,7 @@ class Character {
     }
   }
 
-  addAttunement(isActive, preventDuplicateCategories = true) {
+  addAttunement(isActive) {
     // Determine current attunements, so we know which ones not to add.
     let currentCategories = [];
     let currentAttunements = [];
@@ -1857,7 +1868,7 @@ class Character {
 
     // Add a random attunement that hasn't been previously selected.
     let attunement = this.config.attunements.random();
-    while (currentAttunements.includes(attunement.name) || (preventDuplicateCategories && currentCategories.includes(attunement.category))) {
+    while (currentAttunements.includes(attunement.name) || (this.config.preventDuplicateAttunementCategories && currentCategories.includes(attunement.category))) {
       attunement = this.config.attunements.random();
     }
 
@@ -1866,6 +1877,7 @@ class Character {
       type: 'Attunement',
       category: attunement.category,
       isActive: isActive,
+      isItem: attunement.isItem,
     })
 
     // If an item was added, make a note of it so we can include it in the inventory.
@@ -1908,6 +1920,7 @@ class Character {
       type: 'Ability',
       category: null,
       isActive: isActive,
+      isItem: null,
     })
   }
 
@@ -1943,6 +1956,7 @@ class Character {
       type: 'Miracle',
       category: null,
       isActive: isActive,
+      isItem: null,
     })
   }
 
@@ -2019,25 +2033,25 @@ class Character {
       this.name = name;
   }
 
-  generateDescriptors(count = 3) {
-    let traits = [];
+  generateDescriptors() {
+    let descriptors = [];
     let excludedCategories = [];
 
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < this.config.descriptorsCount; i++) {
         // Get a random descriptor trait.
         let descriptor = this.config.descriptors.random();
 
         // If a trait of that type (e.g. complexion or family) has already been selected, select a new one.
-        while (excludedCategories.includes(descriptor.category)) {
+        while (descriptors.includes(descriptor.value) || (this.config.preventDuplicateDescriptorCategories && excludedCategories.includes(descriptor.category))) {
             descriptor = this.config.descriptors.random()
         }
 
         // Add the trait and its associated category to our respective arrays.
-        traits.push(descriptor.value);
+        descriptors.push(descriptor.value);
         excludedCategories.push(descriptor.category);
     }
 
-    this.descriptors = [...new Set(traits)].shuffle(); // Convert to a set (to filter out any duplicate values) then back to an array.
+    this.descriptors = [...new Set(descriptors)].shuffle(); // Convert to a set (to filter out any duplicate values) then back to an array.
   }
 
   increaseLevel() {
@@ -2047,7 +2061,7 @@ class Character {
 
     let oldCharacterClassTableEntry = this.characterClassTableEntry; // FIXME create a complete history by level.
     let oldHitPoints = this.hitPoints;
-    let oldAttributes = this.attributes;
+    let oldIntelligence = this.attributes.intelligence.score;
     let oldGroupCount = this.groupCount;
     let oldSlotCount = this.slotCount;
 
@@ -2100,7 +2114,8 @@ class Character {
     if (this.groupCount.bonus < oldGroupCount.bonus) {
       // Remove a bonus group.
       // Randomly select one group that's a bonus group.
-      this.groups.pop(); // FIXME change to remove a bonus group at random, not just the last group.
+      let bonusGroup = this.bonusGroups.random();
+      this.groups = this.groups.filter(group => group.name !== bonusGroup.name);
     }
 
     if (this.groupCount.base > oldGroupCount.base) {
@@ -2126,9 +2141,9 @@ class Character {
 
     // Check intelligence score.
     // If character has reached a new cutoff (13 or 16) then we need to add a new language.
-    if (this.attributes.intelligence.score >= 16 && oldAttributes.intelligence.score < 16) {
+    if (this.attributes.intelligence.score >= 16 && oldIntelligence < 16) {
       this.addLanguage();
-    } else if (this.attributes.intelligence.score >= 13 && oldAttributes.intelligence.score < 13) {
+    } else if (this.attributes.intelligence.score >= 13 && oldIntelligence < 13) {
       this.addLanguage();
     }
   }
