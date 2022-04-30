@@ -490,6 +490,19 @@ const defaultConfig = {
     "Bifurcate",
     "Teleport",
   ],
+  miracleItems: [
+    "Crystal ball",
+    "Magic wand",
+    "Magic rod",
+    "Wizard's staff",
+    "Magic scroll",
+    "Book of spells",
+    "Unholy spellbook",
+    "Holy symbol",
+    "Reliquary",
+    "Saint's bone",
+    "Blessed shroud",
+  ],
   vocations: [
     // Warriors
     "Barbarian",
@@ -1506,9 +1519,11 @@ class Character {
 
   }
 
-  generateHitPoints() {
+  generateHitPoints(maxAtFirstLevel = false) {
     // Roll hit dice and add bonus hit points from class table.
-    if (this.characterClass === 'Brave' && this.level <= 3) {
+    if (maxAtFirstLevel) {
+      this.hitPoints = 6*this.hitDice.base + this.hitDice.bonusHitPoints
+    } else if (this.characterClass === 'Brave' && this.level <= 3) {
       // Brave characters of level 3 or lower get to roll their HD twice and take the greater result.
       this.hitPoints = d(6, this.hitDice.base, 'high') + this.hitDice.bonusHitPoints;
     } else {
@@ -1924,19 +1939,50 @@ class Character {
     })
   }
 
-  generateMiracles(activeCount, inactiveCount) {
-    // Add active miracles.
-    for (let i = 0; i < activeCount; i++) {
-      this.addMiracle(true);
-    }
+  generateMiracles(activeCount, inactiveCount, hasLevelThreeItem = false) {
+    // Generate level three item if Wise has one.
+    // Randomly determine if it should be active or inactive.
+    if (hasLevelThreeItem) {
+      if (Math.random() > 0.5) {
+        this.addMiracle(true, true)
 
-    // Add inactive and bonus inactive miracles.
-    for (let i = 0; i < inactiveCount; i++) {
-      this.addMiracle(false);
+        // Add active miracles.
+        for (let i = 1; i < activeCount; i++) {
+          this.addMiracle(true);
+        }
+
+        // Add inactive and bonus inactive miracles.
+        for (let i = 0; i < inactiveCount; i++) {
+          this.addMiracle(false);
+        }
+      } else {
+        // Add active miracles.
+        for (let i = 0; i < activeCount; i++) {
+          this.addMiracle(true);
+        }
+
+        // Add inactive and bonus inactive miracles.
+        this.addMiracle(false, true)
+
+        for (let i = 1; i < inactiveCount; i++) {
+          this.addMiracle(false);
+        }
+      }
+    } else {
+      // Add active miracles.
+      for (let i = 0; i < activeCount; i++) {
+        this.addMiracle(true);
+      }
+  
+      // Add inactive and bonus inactive miracles.
+      for (let i = 0; i < inactiveCount; i++) {
+        this.addMiracle(false);
+      }
+
     }
   }
 
-  addMiracle(isActive) {
+  addMiracle(isActive, isItem = false) {
     // Determine current miracles, so we know which ones not to add.
     let currentMiracles = [];
     this.slots.forEach(slot => {
@@ -1946,7 +1992,11 @@ class Character {
     });
 
     // Add a random miracle that hasn't been previously selected.
-    let miracle = this.config.miracles.random();
+    if (isItem) {
+      var miracle = this.config.miracles.random();
+    } else {
+      var miracle = this.config.miracleItems.random();
+    }
     while (currentMiracles.includes(miracle)) {
       miracle = this.config.miracles.random();
     }
@@ -1956,8 +2006,17 @@ class Character {
       type: 'Miracle',
       category: null,
       isActive: isActive,
-      isItem: null,
+      isItem: isItem ? true : null,
     })
+
+    // If an item was added, make a note of it so we can include it in the inventory.
+    if (isItem && !this.inventory) {
+      // If the inventory hasn't been instantiated yet, create it and insert the item.
+      this.inventory = [miracle];
+    } else if (isItem) {
+      // If the inventory has been instantiated, just append the item.
+      this.inventory.push(miracle);
+    }
   }
 
   generateInventory() {
