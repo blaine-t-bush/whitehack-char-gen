@@ -12,6 +12,8 @@ import { getRandomElement, getRandomUniqueElement, roll } from "./utils";
 class Character {
   name: string;
   xp: number;
+  level: number;
+  class: string;
   classEntry: CharacterClass;
   species: string;
   vocation: string;
@@ -23,10 +25,86 @@ class Character {
 
   constructor(xp: number = 0) {
     this.xp = xp;
-    this.classEntry = getRandomClass(this.xp);
-    this.attributes = generateAttributeScores();
-    this.hitPoints = generateHitPoints(this.classEntry.name, this.classEntry.level, this.attributes.con.score);
+    let classEntry: CharacterClass = getRandomClass(this.xp);
+    this.class = classEntry.name;
+    this.level = classEntry.level;
+    this.generateAttributeScores();
+    this.generateHitPoints();
+  }
 
+  generateAttributeScores(): void {
+    this.attributes.str.score = roll(6, 3);
+    this.attributes.dex.score = roll(6, 3);
+    this.attributes.con.score = roll(6, 3);
+    this.attributes.int.score = roll(6, 3);
+    this.attributes.wis.score = roll(6, 3);
+    this.attributes.cha.score = roll(6, 3);
+  }
+
+  generateHitPoints(): void {
+    // Hit points have history, so we must simulate rolls starting from level 1.
+    let hitPoints: number, tempHitPoints: number;
+    for (let level = 1; level <= this.level; level++) {
+      // Optional house rule: max HP at level 1.
+      if (level === 1 && config.maxHitPointsAtFirstLevel) {
+        tempHitPoints = this.classEntry.hitDice * 6 + this.classEntry.bonusHitPoints
+      } else {
+        tempHitPoints = roll(6, this.classEntry.hitDice) + this.classEntry.bonusHitPoints
+      }
+
+      // Optional house rule: HP increases by at least 1 every level.
+      if (config.increaseHitPointsEveryLevel && tempHitPoints <= hitPoints) {
+        tempHitPoints = hitPoints + 1;
+      } else if (tempHitPoints < hitPoints) {
+        tempHitPoints = hitPoints;
+      }
+
+      hitPoints = tempHitPoints;
+    }
+
+    // Strong get bonus HP for high con score.
+    if (this.class === "Strong" && this.attributes.con.score >= 16) {
+      hitPoints += 2;
+    } else if (this.class === "Strong" && this.attributes.con.score >= 13) {
+      hitPoints += 1;
+    }
+
+    this.hitPoints = hitPoints;
+  }
+  
+  generateGroups(): void {
+    let groups: string[] = [];
+
+    // Determine number of groups based on class/level and attribute scores.
+    let bonusGroupCount: number = 0;
+    if (this.attributes.str.score <= 5) bonusGroupCount++
+    if (this.attributes.dex.score <= 5) bonusGroupCount++
+    if (this.attributes.con.score <= 5) bonusGroupCount++
+    if (this.attributes.int.score <= 5) bonusGroupCount++
+    if (this.attributes.wis.score <= 5) bonusGroupCount++
+    if (this.attributes.cha.score <= 5) bonusGroupCount++
+    let remainingGroupCount: number = this.classEntry.groupCount + bonusGroupCount;
+
+    // Generate species.
+    if (Math.random() <= config.nonDefaultSpeciesChance) {
+      this.species = getRandomElement(specieses).name;
+      groups.push(this.species);
+      remainingGroupCount--;
+    } else {
+      this.species = config.defaultSpecies;
+    }
+
+    // Generate vocation.
+    this.vocation = getRandomElement(vocations);
+    if (this.class !== "Deft") {
+      groups.push(getRandomElement(vocations));
+    }
+    remainingGroupCount--;
+
+    // Generate affiliations.
+    for (let i = 0; i < remainingGroupCount; i++) {
+      groups.push(getRandomUniqueElement(affiliations, groups));
+    }
   }
 }
 
@@ -49,84 +127,6 @@ export function getRandomClass(xp: number = 0): CharacterClass {
       }
       return 0;
     })[0];
-}
-
-export function generateAttributeScores(): Attributes {
-  return {
-    str: {
-      name: "Strength",
-      score: roll(6, 3),
-      groups: [],
-    },
-    dex: {
-      name: "Dexterity",
-      score: roll(6, 3),
-      groups: [],
-    },
-    con: {
-      name: "Constitution",
-      score: roll(6, 3),
-      groups: [],
-    },
-    int: {
-      name: "Intelligence",
-      score: roll(6, 3),
-      groups: [],
-    },
-    wis: {
-      name: "Wisdom",
-      score: roll(6, 3),
-      groups: [],
-    },
-    cha: {
-      name: "Charisma",
-      score: roll(6, 3),
-      groups: [],
-    },
-  }
-}
-
-export function generateHitPoints(className: string, level: number, conScore: number): number {
-  let classEntry: CharacterClass = classes.filter((val) => val.name === className && val.level === level)[0];
-  let hitPoints: number;
-
-  if (level === 1) {
-    hitPoints = classEntry.hitDice * 6 + classEntry.bonusHitPoints;
-  } else {
-    // If above level 1, new hit points are the greater of either the new roll, or the old roll plus 1.
-    hitPoints = Math.max.apply(null, [generateHitPoints(className, level-1, conScore) + 1, roll(6, classEntry.hitDice) + classEntry.bonusHitPoints]);
-  }
-  
-  if (classEntry.name === "Strong" && conScore >= 16) {
-    hitPoints += 2;
-  } else if (classEntry.name === "Strong" && conScore >= 13) {
-    hitPoints += 1;
-  }
-
-  return hitPoints;
-}
-
-export function generateGroups(className: string, level: number, bonusGroups: number): string[] {
-  let classEntry: CharacterClass = classes.filter((val) => val.name === className && val.level === level)[0];
-  let groups: string[] = [];
-  let remainingGroupCount: number = classEntry.groupCount + bonusGroups;
-
-  // Generate species.
-  if (Math.random() <= config.nonDefaultSpeciesChance) {
-    groups.push(getRandomElement(specieses).name);
-    remainingGroupCount--;
-  }
-
-  // Generate vocation.
-  groups.push(getRandomElement(vocations));
-  remainingGroupCount--;
-
-  // Generate affiliations.
-  for (let i = 0; i < remainingGroupCount; i++) {
-    groups.push(getRandomUniqueElement(affiliations, groups));
-  }
-
-  return groups;
 }
 
 export function assignGroupsToAttributes(groups: string[], attributes: Attributes): Attributes {
