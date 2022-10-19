@@ -1,5 +1,7 @@
 import type { CharacterClass } from "../interfaces/characterClass";
 import type { Attributes } from "../interfaces/attribute";
+import type { Armor } from "../interfaces/armor";
+import type { Weapon } from "../interfaces/weapon";
 
 import { config } from "../config/config";
 import { classes } from "../data/classes";
@@ -11,6 +13,8 @@ import { abilities } from "../data/abilities";
 import { attunements } from "../data/attunements";
 import { miracles } from "../data/miracles";
 import { namesHumanPrefix, namesHumanPrimary, namesHumanSuffix, namesDwarfAdjective, namesDwarfNoun, namesElf } from "../data/names";
+import { noneArmor, armors, shield, helmet } from "../data/armors";
+import { weapons } from "../data/weapons";
 
 import { getRandomElement, getRandomUniqueElement, roll } from "./utils";
 
@@ -31,18 +35,35 @@ export class Character {
   abilities: string[];
   attunements: { index: number, name: string, isActive: boolean }[];
   miracles: { index: number, name: string, isActive: boolean }[];
+  coins: number;
+  weapons: Weapon[];
+  armor: Armor;
+  shield: Armor;
+  inventory: { name: string, slots: number }[];
 
   constructor(xp: number = 0) {
+    // Class and level
     this.xp = xp;
     this.classEntry = getRandomClass(this.xp);
     this.class = this.classEntry.name;
     this.level = this.classEntry.level;
+
+    // Vital statistics
     this.generateAttributeScores();
     this.generateHitPoints();
     this.generateGroups();
+    this.generateStatistics();
+
+    // Abilities and fluff
     this.generateClassAbilities();
     this.generateName();
     this.generateLanguages();
+
+    // Inventory and equipment.
+    this.inventory = [];
+    this.generateCoins();
+    this.generateWeapons();
+    this.generateArmor();
   }
 
   generateAttributeScores(): void {
@@ -132,7 +153,7 @@ export class Character {
 
     // Generate species.
     if (Math.random() <= config.nonDefaultSpeciesChance) {
-      this.species = getRandomElement(specieses).name;
+      this.species = getRandomElement(specieses.filter(species => !species.isDefault)).name;
       groups.push(this.species);
       remainingGroupCount--;
       // Select two random attributes. Species is the first group so we don't have
@@ -143,7 +164,7 @@ export class Character {
       this.attributes[attribute1].groups.push(this.species);
       this.attributes[attribute2].groups.push(this.species);
     } else {
-      this.species = config.defaultSpecies;
+      this.species = getRandomElement(specieses.filter(species => species.isDefault)).name;
     }
 
     // Generate vocation.
@@ -242,6 +263,73 @@ export class Character {
       this.miracles = selectedMiracles;
     }
   }
+
+  generateStatistics(): void {
+    // Attack value.
+    if (this.class === "Strong") {
+      this.attackValue = this.classEntry.attackValue + (this.attributes.str.score >= 13 ? 1 : 0);
+    } else {
+      this.attackValue = this.classEntry.attackValue;
+    }
+
+    // Saving throw.
+    this.savingThrow = this.classEntry.savingThrow;
+  }
+
+  generateCoins(): void {
+    this.coins = 10*roll(6, 3);
+  }
+
+  generateWeapons(): void {
+    this.weapons = [];
+    // Select two weapons. Preferrably one melee and one ranged. Only Strong can use two-handed weapons.
+    let availableWeapons = weapons.filter((weapon) => weapon.cost <= this.coins && (this.class === "Strong" || !weapon.special.includes("Two handed")));
+    if (availableWeapons.length > 0) {
+      let firstSelectedWeapon = getRandomElement(availableWeapons);
+      this.coins -= firstSelectedWeapon.cost;
+      this.weapons = [...this.weapons, firstSelectedWeapon];
+      this.inventory = [...this.inventory, { name: firstSelectedWeapon.name, slots: itemWeightToSlots(firstSelectedWeapon.weight) }];
+    }
+
+    availableWeapons = weapons.filter((weapon) => weapon.cost <= this.coins && (this.class === "Strong" || !weapon.special.includes("Two handed")));
+    if (availableWeapons.length > 0) {
+      let secondSelectedWeapon = getRandomElement(availableWeapons);
+      this.coins -= secondSelectedWeapon.cost;
+      this.weapons = [...this.weapons, secondSelectedWeapon];
+      this.inventory = [...this.inventory, { name: secondSelectedWeapon.name, slots: itemWeightToSlots(secondSelectedWeapon.weight) }];
+    }
+  }
+
+  generateArmor(): void {
+    let availableArmors = armors.filter((armor) => armor.cost <= this.coins && armor.allowedClasses.includes(this.class));
+    if (availableArmors.length > 0) {
+      let selectedArmor = getRandomElement(availableArmors);
+      this.coins -= selectedArmor.cost;
+      this.armor = selectedArmor;
+      this.inventory = [...this.inventory, { name: this.armor.name, slots: this.armor.armorClass }]
+    } else {
+      this.armor = null;
+    }
+
+    if (this.class == "Strong" && shield.cost <= this.coins && Math.random() <= config.shieldPurchaseChance) {
+      this.coins -= shield.cost;
+      this.shield = shield;
+      this.inventory = [...this.inventory, { name: shield.name, slots: 1 }]
+    } else {
+      this.shield = null;
+    }
+
+    if (helmet.cost <= this.coins && Math.random() <= config.helmetPurchaseChance) {
+      this.coins -= helmet.cost;
+      this.inventory = [...this.inventory, { name: helmet.name, slots: 1 }]
+    }
+
+    if (this.armor === null) {
+      this.armorClass = 0;
+    } else {
+      this.armorClass = this.armor.armorClass; // + (this.shield !== null ? 1 : 0);
+    }
+  }
 }
 
 function getRandomClass(xp: number = 0): CharacterClass {
@@ -276,4 +364,16 @@ function getRandomAttribute(exclude: string[] = null): string {
   }
 
   return getRandomElement(availableAttributes);
+}
+
+function itemWeightToSlots(size: string): number {
+  if (size === "H") {
+    return 2;
+  } else if (size === "R") {
+    return 1;
+  } else if (size === "M") {
+    return 0.5;
+  } else {
+    return 0;
+  }
 }

@@ -1,6 +1,8 @@
+import { armors } from '../src/lib/data/armors';
+import { weapons } from '../src/lib/data/weapons';
 import { Character } from '../src/lib/functions/character';
 
-const TEST_COUNT = 100;
+const TEST_COUNT = 1000;
 
 test('Character.xp', () => {
   expect((new Character(0)).xp).toBe(0);
@@ -99,5 +101,58 @@ test('Character[abilities|attunements|miracles]', () => {
       else if (character.attributes.wis.score >= 13) expect(character.miracles.length).toBe(3);
       else expect(character.miracles.length).toBe(2);
     }
+  }
+})
+
+test('Character.coins', () => {
+  for (let i = 0; i < TEST_COUNT; i++) {
+    let character: Character = new Character(0);
+    expect(character.coins).toBeGreaterThanOrEqual(0);
+    expect(character.coins).toBeLessThanOrEqual(180);
+  }
+})
+
+test('Character.weapons', () => {
+  const weaponNames = weapons.map(weapon => weapon.name);
+  for (let i = 0; i < TEST_COUNT; i++) {
+    let character: Character = new Character(0);
+    expect(character.weapons.length).toBe(2);
+    for (const weapon of character.weapons) {
+      expect(weaponNames).toContain(weapon.name);
+      expect(character.class === "Strong" || !weapon.special.includes("Two handed")).toBeTruthy();
+    }
+  }
+})
+
+test('Character.armor', () => {
+  const armorNames = armors.map(armor => armor.name);
+  for (let i = 0; i < TEST_COUNT; i++) {
+    let character: Character = new Character(0);
+    if (character.armor !== null) {
+      expect(armorNames).toContain(character.armor.name);
+      expect(character.armor.allowedClasses).toContain(character.class);
+      expect(character.armor.armorClass).toBeLessThanOrEqual(6);
+      expect(character.armor.armorClass).toBeGreaterThanOrEqual(1);
+      expect(character.armorClass).toBe(character.armor.armorClass);
+    } else {
+      expect(character.armorClass).toBe(0);
+    }
+  }
+})
+
+test('Character.shield', () => {
+  for (let i = 0; i < TEST_COUNT; i++) {
+    let character: Character = new Character(0);
+    if (character.shield !== null) {
+      expect(character.class).toBe("Strong");
+    }
+  }
+})
+
+test('Character.inventory', () => {
+  for (let i = 0; i < TEST_COUNT; i++) {
+    let character: Character = new Character(0);
+    expect(character.inventory.length).toBeGreaterThan(0);
+    expect(character.inventory.length).toBeLessThanOrEqual(15);
   }
 })
