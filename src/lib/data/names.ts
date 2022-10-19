@@ -395,4 +395,8 @@ const namesDwarfNoun: string[] = [
   "Dragon",
 ];
 
-export { namesHumanPrefix, namesHumanSuffix, namesHumanPrimary, namesDwarfAdjective, namesDwarfNoun };
+const namesElf: string[] = [
+  "Elfy",
+]
+
+export { namesHumanPrefix, namesHumanSuffix, namesHumanPrimary, namesDwarfAdjective, namesDwarfNoun, namesElf };

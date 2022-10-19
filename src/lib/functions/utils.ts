@@ -3,13 +3,8 @@ export function getRandomElement<T>(array: T[]): T {
 }
 
 export function getRandomUniqueElement<T>(array: T[], selections: T[]): T {
-  let element: T = getRandomElement(array);
-
-  while (selections.includes(element)) {
-    element = getRandomElement(array);
-  }
-
-  return element;
+  let availableOptions: T[] = array.filter(val => !selections.includes(val));
+  return getRandomElement(availableOptions);
 }
 
 export function shuffleArray<T>(array: T[]): T[] {
