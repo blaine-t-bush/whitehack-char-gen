@@ -1,112 +1,48 @@
-# Whitehack Character Generator
+# Svelte + TS + Vite
 
-A JavaScript class for randomly generating characters for Whitehack 2nd Edition.
+This template should help get you started developing with Svelte and TypeScript in Vite.
 
-## Installation
+## Recommended IDE Setup
+
+[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+
+## Need an official Svelte framework?
+
+Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
+
+## Technical considerations
+
+**Why use this over SvelteKit?**
+
+- It brings its own routing solution which might not be preferable for some users.
+- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
+  `vite dev` and `vite build` wouldn't work in a SvelteKit environment, for example.
+
+This template contains as little as possible to get started with Vite + TypeScript + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
+
+Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
+
+**Why `global.d.ts` instead of `compilerOptions.types` inside `jsconfig.json` or `tsconfig.json`?**
+
+Setting `compilerOptions.types` shuts out all other types not explicitly listed in the configuration. Using triple-slash references keeps the default TypeScript setting of accepting type information from the entire workspace, while also adding `svelte` and `vite/client` type information.
+
+**Why include `.vscode/extensions.json`?**
+
+Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
+
+**Why enable `allowJs` in the TS template?**
+
+While `allowJs: false` would indeed prevent the use of `.js` files in the project, it does not prevent the use of JavaScript syntax in `.svelte` files. In addition, it would force `checkJs: false`, bringing the worst of both worlds: not being able to guarantee the entire codebase is TypeScript, and also having worse typechecking for the existing JavaScript. In addition, there are valid use cases in which a mixed codebase may be relevant.
+
+**Why is HMR not preserving my local component state?**
+
+HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/rixo/svelte-hmr#svelte-hmr).
+
+If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
+
+```ts
+// store.ts
+// An extremely simple external store
+import { writable } from 'svelte/store'
+export default writable(0)
 ```
-npm i whitehack-char-gen
-```
-
-## Usage
-
-### Import
-After installing with `npm`, import the character class with `import Character from 'whitehack-char-gen';`.
-
-### Examples
-Create a new character
-```
-myChar = new Character(1, 'Deft');
-```
-
-Level up an existing character
-```
-myChar.increaseLevel();
-```
-
-Manually update an attribute
-```
-myChar.attributes.intelligence.score = 13;
-```
-
-Choose new groups
-```
-myChar.generateGroups();
-```
-
-Choose new slots
-```
-myChar.generateSlots();
-```
-
-### Configuration
-Configuration options can be passed as an optional object argument into the Character class to change how characters are generated.
-```
-myChar = new Character(1, 'Deft', config);
-```
-
-For example, you can override the available languages by passing an array to the languages property of the config argument:
-```
-myChar = new Character(1, 'Deft', {
-    languages: [
-        'Dwarvish',
-        'Elvish',
-        'Orcish',
-    ]
-});
-```
-
-Available configuration options are as follows:
-
-#### nonDefaultSpeciesChance
-Percent chance [0, 1] of generating a character with a species other than the default.
-
-#### hybridSpeciesChance
-Percent chance [0, 1] of generating a character with species group attached only to a single attribute, rather than two, *if* they are of a non-default species. This represents characters who are hybrids of the default species and a non-default species, e.g. half-elves.
-
-#### defaultSpecies
-Object of the form `{ name: 'Species Name', language: 'Species Language' }`, representing the standard species of your setting. The default is `{ name: 'Human', language: 'Common' }`.
-
-#### otherSpecies
-Array of objects of the same form as defaultSpecies.
-
-#### languages
-Array of strings representing languages available for characters to learn. This should have at least 2 unique entries, excluding any overlap with species-specific languages, to account for high-intelligence characters.
-
-#### affiliations
-Array of strings representing available affiliation groups. Should have at least 10 unique entries.
-
-#### attunements
-Array of objects with properties `name`, `category`, and `isItem`. Deft slots are randomly selected from this array, excluding elements of a `category` that has already been selected. If an element has `isItem = true`, it will be added to the Deft's inventory. Should have entries from at least 8 unique categories. However, see config option `preventDuplicateAttunementCategories` for an alternative.
-
-#### preventDuplicateAttunementCategories
-Boolean, by default `true`. When `true`, prevents attunements from the same category being assigned. When `false`, attunements from the same category *can* be assigned, so `attunements` need only have 8 unique entries, not 8 unique categories.
-
-#### abilities
-Array of strings representing available Strong abilities. Should have at least 4 unique entries.
-
-#### miracles
-Array of strings representing available Wise miracles. Should have at least 12 unique entries.
-
-#### vocations
-Array of strings representing available vocations.
-
-#### defaultInventory
-Array of strings representing the items that every character has.
-
-#### names
-Object with three properties: `prefixes`, `primaries`, and `suffixes`, each of which is an array of strings. Generated names can be of one of the following forms:
-- `primary`
-- `prefix + ' ' + primary`
-- `primary + ' ' + suffix`
-
-#### descriptors
-Array of objects with properties `category` and `value`. These are used to add quirks to the character, such as `{ category: 'personality', value: 'Quick to forgive'}`. By default, 3 descriptors are generated for each character, and they are of unique categories, so this should have entries of at least 3 unique categories. However, see config option `preventDuplicateDescriptorCategories` for an alternative.
-
-#### preventDuplicateAttunementCategories
-Boolean, by default `true`. When `true`, prevents descriptors from the same category being assigned. When `false`, descriptors from the same category *can* be assigned, so `descriptors` need only have 3 unique entries, not 3 unique categories.
-
-#### descriptorsCount
-Integer, by default `3`. Number of descriptors to generate.
-
-## License
-Whitehack 2nd Edition is copyright 2015 Christian Merhstam. Its mechanisms are Open Game Content.
