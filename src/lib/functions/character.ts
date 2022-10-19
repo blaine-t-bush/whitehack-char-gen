@@ -306,7 +306,7 @@ export class Character {
       let selectedArmor = getRandomElement(availableArmors);
       this.coins -= selectedArmor.cost;
       this.armor = selectedArmor;
-      this.inventory = [...this.inventory, { name: this.armor.name, slots: this.armor.armorClass }]
+      this.inventory = [...this.inventory, { name: `${this.armor.name} Armor`, slots: this.armor.armorClass }]
     } else {
       this.armor = null;
     }

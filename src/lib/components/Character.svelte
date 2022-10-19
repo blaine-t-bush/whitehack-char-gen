@@ -94,9 +94,10 @@
       <div class="character-attributes-groups groups-1 handwritten">
         {#each character.attributes.str.groups as group, index}
           <span>
-            {group}
-            {#if character.attributes.str.groups.length > 1 && index !== character.attributes.str.groups.length}
-              <span>, </span>
+            {#if character.attributes.str.groups.length > 1 && index !== character.attributes.str.groups.length - 1}
+              {group},
+            {:else}
+              {group}
             {/if}
           </span>
         {/each}
@@ -109,9 +110,10 @@
       <div class="character-attributes-groups groups-2 handwritten">
         {#each character.attributes.dex.groups as group, index}
           <span>
-            {group}
-            {#if character.attributes.dex.groups.length > 1 && index !== character.attributes.dex.groups.length}
-              <span>, </span>
+            {#if character.attributes.dex.groups.length > 1 && index !== character.attributes.dex.groups.length - 1}
+              {group},
+            {:else}
+              {group}
             {/if}
           </span>
         {/each}
@@ -124,9 +126,10 @@
       <div class="character-attributes-groups groups-3 handwritten">
         {#each character.attributes.con.groups as group, index}
           <span>
-            {group}
-            {#if character.attributes.con.groups.length > 1 && index !== character.attributes.con.groups.length}
-              <span>, </span>
+            {#if character.attributes.con.groups.length > 1 && index !== character.attributes.con.groups.length - 1}
+              {group},
+            {:else}
+              {group}
             {/if}
           </span>
         {/each}
@@ -139,9 +142,10 @@
       <div class="character-attributes-groups groups-4 handwritten">
         {#each character.attributes.int.groups as group, index}
           <span>
-            {group}
-            {#if character.attributes.int.groups.length > 1 && index !== character.attributes.int.groups.length}
-              <span>, </span>
+            {#if character.attributes.int.groups.length > 1 && index !== character.attributes.int.groups.length - 1}
+              {group},
+            {:else}
+              {group}
             {/if}
           </span>
         {/each}
@@ -154,9 +158,10 @@
       <div class="character-attributes-groups groups-5 handwritten">
         {#each character.attributes.wis.groups as group, index}
           <span>
-            {group}
-            {#if character.attributes.wis.groups.length > 1 && index !== character.attributes.wis.groups.length}
-              <span>, </span>
+            {#if character.attributes.wis.groups.length > 1 && index !== character.attributes.wis.groups.length - 1}
+              {group},
+            {:else}
+              {group}
             {/if}
           </span>
         {/each}
@@ -169,9 +174,10 @@
       <div class="character-attributes-groups groups-6 handwritten">
         {#each character.attributes.cha.groups as group, index}
           <span>
-            {group}
-            {#if character.attributes.cha.groups.length > 1 && index !== character.attributes.cha.groups.length}
-              <span>, </span>
+            {#if character.attributes.cha.groups.length > 1 && index !== character.attributes.cha.groups.length - 1}
+              {group},
+            {:else}
+              {group}
             {/if}
           </span>
         {/each}
