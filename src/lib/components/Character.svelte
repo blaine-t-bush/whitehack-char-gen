@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { attunements } from "../data/attunements";
   import { Character } from "../functions/character";
 
   let character = new Character(0);
@@ -11,18 +10,18 @@
 
 <div class="wrapper">
   <div class="character-container">
-    <div class="character-buttons">
-      <button class="character-buttons-generate" on:click={generateCharacter}>
-        <i class="fas fa-dice" aria-hidden="true" /> Roll again!
-      </button>
-    </div>
-
     <div class="character">
-      <div class="character-name handwritten">
-        {character.name}
-      </div>
+      <div class="top-row">
+        <div class="character-name handwritten">
+          {character.name}
+        </div>
 
-      <div class="character-name-form typed">NAME</div>
+        <div class="character-name-form typed">NAME</div>
+
+        <button class="character-buttons-generate" on:click={generateCharacter}>
+          re-roll!
+        </button>
+      </div>
 
       <div class="character-summary-container">
         <div class="character-summary-container-sub characterclass">
@@ -311,24 +310,26 @@
     }
   }
 
-  .character-buttons {
-    display: flex;
-    justify-content: center;
-    position: absolute;
-    z-index: 999;
-    right: 0.5em;
-    top: 0.5em;
-
-    &-generate {
-      margin: 0.5em;
-    }
-  }
-
   .character {
     box-sizing: border-box;
     margin: auto;
     position: relative;
     padding: 0.5rem 1rem;
+  }
+
+  .top-row {
+    display: grid;
+    grid-template-columns: auto 80px;
+    grid-template-rows: 1fr 1fr;
+    column-gap: 20px;
+  }
+
+  button {
+    background-color: #f0e7dc;
+    border: 1px solid #b39f88;
+    font-family: "Special Elite", "Courier New", Courier, monospace;
+    font-size: 0.8rem;
+    grid-column: 2;
   }
 
   .character-name {
@@ -338,13 +339,15 @@
     height: 1.8rem;
 
     &.handwritten {
-      padding-left: 3px;
+      grid-column: 1;
+      grid-row: 1;
     }
 
     &-form {
       border-top: 1px solid gray;
-      // margin-top: 0.1rem;
       padding-top: 0.1rem;
+      grid-column: 1;
+      grid-row: 2;
     }
   }
 
