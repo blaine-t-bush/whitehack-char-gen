@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { attunements } from "../data/attunements";
   import { Character } from "../functions/character";
 
   let character = new Character(0);
@@ -211,18 +212,20 @@
             {:else if character.class === "Deft"}
               {#each character.attunements as attunement}
                 <li>
-                  {attunement.name}
                   {#if attunement.isActive}
-                    <sup>*</sup>
+                    {attunement.name}*
+                  {:else}
+                    {attunement.name}
                   {/if}
                 </li>
               {/each}
             {:else if character.class === "Wise"}
               {#each character.miracles as miracle}
                 <li>
-                  {miracle.name}
                   {#if miracle.isActive}
-                    <sup>*</sup>
+                    {miracle.name}*
+                  {:else}
+                    {miracle.name}
                   {/if}
                 </li>
               {/each}
@@ -668,6 +671,7 @@
 
       &-header {
         height: 0.8rem;
+        padding-bottom: 0.5rem;
       }
 
       ul {
@@ -677,7 +681,7 @@
         padding: 0;
 
         li {
-          height: 1.2rem;
+          line-height: 1.2rem;
           list-style: "-";
           padding-left: 0.2rem;
         }
@@ -689,6 +693,7 @@
 
       &-header {
         height: 0.8rem;
+        padding-bottom: 0.5rem;
       }
 
       ul {
@@ -698,7 +703,7 @@
         padding: 0;
 
         li {
-          height: 1.2rem;
+          line-height: 1.2rem;
           list-style: "-";
           padding-left: 0.2rem;
         }
@@ -710,6 +715,7 @@
 
       &-header {
         height: 0.8rem;
+        padding-bottom: 0.5rem;
       }
 
       ul {
@@ -718,7 +724,7 @@
         padding: 0;
 
         li {
-          height: 1.2rem;
+          line-height: 1.2rem;
           list-style: "-";
           margin-left: 1rem;
           padding-left: 1.2rem;
@@ -732,6 +738,7 @@
 
       &-header {
         height: 0.8rem;
+        padding-bottom: 0.5rem;
       }
 
       ul {
@@ -747,7 +754,7 @@
         padding: 0;
 
         li {
-          height: 1.2rem;
+          line-height: 1.2rem;
           list-style: "-";
           padding-left: 0.2rem;
         }
