@@ -17,6 +17,7 @@ import { noneArmor, armors, shield, helmet } from "../data/armors";
 import { weapons } from "../data/weapons";
 
 import { getRandomElement, getRandomUniqueElement, roll } from "./utils";
+import { descriptors } from "../data/descriptors";
 
 export class Character {
   name: string;
@@ -40,23 +41,23 @@ export class Character {
   armor: Armor;
   shield: Armor;
   inventory: { name: string, slots: number }[];
+  descriptors: string[];
 
   constructor(xp: number = 0) {
-    // Class and level
+    // Class and level.
     this.xp = xp;
     this.classEntry = getRandomClass(this.xp);
     this.class = this.classEntry.name;
     this.level = this.classEntry.level;
 
-    // Vital statistics
+    // Vital statistics.
     this.generateAttributeScores();
     this.generateHitPoints();
     this.generateGroups();
     this.generateStatistics();
 
-    // Abilities and fluff
+    // Abilities and skills.
     this.generateClassAbilities();
-    this.generateName();
     this.generateLanguages();
 
     // Inventory and equipment.
@@ -64,6 +65,10 @@ export class Character {
     this.generateCoins();
     this.generateWeapons();
     this.generateArmor();
+
+    // Fluff.
+    this.generateName();
+    this.generateDescriptors();
   }
 
   generateAttributeScores(): void {
@@ -329,6 +334,17 @@ export class Character {
     } else {
       this.armorClass = this.armor.armorClass; // + (this.shield !== null ? 1 : 0);
     }
+  }
+
+  generateDescriptors(): void {
+    let selectedDescriptors: { category: string, value: string }[] = [];
+
+    // Get three descriptors from unique categories.
+    selectedDescriptors = [...selectedDescriptors, getRandomElement(descriptors)];
+    selectedDescriptors = [...selectedDescriptors, getRandomElement(descriptors.filter(descriptor => !selectedDescriptors.map(selected => selected.category).includes(descriptor.category)))];
+    selectedDescriptors = [...selectedDescriptors, getRandomElement(descriptors.filter(descriptor => !selectedDescriptors.map(selected => selected.category).includes(descriptor.category)))];
+
+    this.descriptors = selectedDescriptors.map(sel => sel.value);
   }
 }
 

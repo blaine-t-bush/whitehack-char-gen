@@ -246,7 +246,9 @@
             APPEARANCE, PERSONALITY, & BACKGROUND
           </div>
           <ul class="character-quirks-list handwritten">
-            <li />
+            {#each character.descriptors as descriptor}
+              <li>{descriptor}</li>
+            {/each}
           </ul>
         </div>
 
