@@ -65,6 +65,7 @@ export class Character {
     this.generateCoins();
     this.generateWeapons();
     this.generateArmor();
+    this.generateItems();
 
     // Fluff.
     this.generateName();
@@ -334,6 +335,33 @@ export class Character {
     } else {
       this.armorClass = this.armor.armorClass; // + (this.shield !== null ? 1 : 0);
     }
+  }
+
+  generateItems(): void {
+    const defaultItems: { name: string, slots: number }[] = [
+      {
+        name: "Ration (2)",
+        slots: 1,
+      },
+      {
+        name: "Waterskin",
+        slots: 0.5,
+      },
+      {
+        name: "Torch (2)",
+        slots: 1,
+      },
+      {
+        name: "Flint & steel",
+        slots: 0,
+      },
+      {
+        name: "Blanket",
+        slots: 1,
+      }
+    ];
+
+    this.inventory = [...this.inventory, ...defaultItems];
   }
 
   generateDescriptors(): void {

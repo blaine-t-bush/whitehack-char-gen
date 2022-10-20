@@ -1,0 +1,27 @@
+const items: { name: string, namePlural: string, costUnit: number, defaultQuantity: number }[] = [
+  { name: "Backpack", namePlural: "Backpacks", costUnit: 5, defaultQuantity: 1, },
+  { name: "Bandage", namePlural: "Bandages", costUnit: 0.4, defaultQuantity: 5, },
+  { name: "Compass", namePlural: "Compasses", costUnit: 50, defaultQuantity: 1, },
+  { name: "Crowbar", namePlural: "Crowbars", costUnit: 5, defaultQuantity: 1, },
+  { name: "Flint & steel", namePlural: "Flints & steels", costUnit: 5, defaultQuantity: 1, },
+  { name: "Grappling hook", namePlural: "Grappling hooks", costUnit: 5, defaultQuantity: 1, },
+  { name: "Hammer", namePlural: "Hammers", costUnit: 3, defaultQuantity: 1, },
+  { name: "Holy symbol", namePlural: "Holy symbols", costUnit: 2, defaultQuantity: 1, },
+  { name: "Lantern", namePlural: "Lanterns", costUnit: 10, defaultQuantity: 1, },
+  { name: "Lockpick", namePlural: "Lockpicks", costUnit: 20, defaultQuantity: 1, },
+  { name: "Map", namePlural: "Maps", costUnit: 20, defaultQuantity: 1, },
+  { name: "Mirror", namePlural: "Mirrors", costUnit: 5, defaultQuantity: 1, },
+  { name: "Oil flask", namePlural: "Oil flasks", costUnit: 2, defaultQuantity: 1, },
+  { name: "Pole", namePlural: "Poles", costUnit: 1, defaultQuantity: 1, },
+  { name: "Ration", namePlural: "Rations", costUnit: 3, defaultQuantity: 1, },
+  { name: "Rope", namePlural: "Ropes", costUnit: 1, defaultQuantity: 1, },
+  { name: "Sack", namePlural: "Sacks", costUnit: 1, defaultQuantity: 1, },
+  { name: "Shovel", namePlural: "Shovels", costUnit: 5, defaultQuantity: 1, },
+  { name: "Stake", namePlural: "Stakes", costUnit: 0.2, defaultQuantity: 6, },
+  { name: "Spike", namePlural: "Spikes", costUnit: 1, defaultQuantity: 6, },
+  { name: "Tinderbox", namePlural: "Tinderboxes", costUnit: 10, defaultQuantity: 1, },
+  { name: "Torch", namePlural: "Torches", costUnit: 0.2, defaultQuantity: 6, },
+  { name: "Waterskin", namePlural: "Waterskins", costUnit: 3, defaultQuantity: 1, },
+];
+
+export { items };
