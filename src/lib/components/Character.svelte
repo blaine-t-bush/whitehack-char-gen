@@ -13,19 +13,13 @@
   function formatInventory(coins, inventory): string[] {
     let formattedInventory: string[] = [];
     for (const item of inventory) {
-      let slots: number;
-      if (item.slots < 1) {
-        slots = 1;
-      } else {
-        slots = item.slots;
-      }
-
-      for (let i = 0; i < slots; i++) {
-        if (i === 0) {
-          formattedInventory.push(item.name);
-        } else {
-          formattedInventory.push('"');
-        }
+      if (item.slots === 0.5) {
+        formattedInventory.push(`${item.name} /`);
+      } else if (item.slots === 1) {
+        formattedInventory.push(item.name);
+      } else if (item.slots === 2) {
+        formattedInventory.push(item.name);
+        formattedInventory.push('"');
       }
     }
 
@@ -55,6 +49,19 @@
     }
 
     return formattedAbilities;
+  }
+
+  function getSlotType(className: string): string {
+    let slotType: string = "";
+    if (className === "Strong") {
+      slotType = "Abilities";
+    } else if (className === "Deft") {
+      slotType = "Attunements";
+    } else if (className === "Wise") {
+      slotType = "Miracles";
+    }
+
+    return slotType;
   }
 </script>
 
@@ -113,7 +120,10 @@
     </div>
 
     <div class="extras">
-      <CharacterExtras title={"Slots"} list={formatAbilities(character)} />
+      <CharacterExtras
+        title={getSlotType(character.class)}
+        list={formatAbilities(character)}
+      />
     </div>
 
     <div class="extras">

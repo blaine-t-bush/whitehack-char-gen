@@ -41,7 +41,7 @@ export class Character {
   weapons: Weapon[];
   armor: Armor;
   shield: Armor;
-  inventory: { name: string, slots: number }[];
+  inventory: { name: string, slots: number, quantity: number }[];
   descriptors: string[];
 
   constructor(xp: number = 0) {
@@ -299,7 +299,7 @@ export class Character {
       let firstSelectedWeapon = getRandomElement(availableWeapons);
       this.coins -= firstSelectedWeapon.cost;
       this.weapons = [...this.weapons, firstSelectedWeapon];
-      this.inventory = [...this.inventory, { name: firstSelectedWeapon.name, slots: itemWeightToSlots(firstSelectedWeapon.weight) }];
+      this.inventory = [...this.inventory, { name: firstSelectedWeapon.name, slots: itemWeightToSlots(firstSelectedWeapon.weight), quantity: 1 }];
     }
 
     availableWeapons = weapons.filter((weapon) => weapon.cost <= this.coins && (this.class === "Strong" || !weapon.special.includes("Two handed")));
@@ -307,7 +307,7 @@ export class Character {
       let secondSelectedWeapon = getRandomElement(availableWeapons);
       this.coins -= secondSelectedWeapon.cost;
       this.weapons = [...this.weapons, secondSelectedWeapon];
-      this.inventory = [...this.inventory, { name: secondSelectedWeapon.name, slots: itemWeightToSlots(secondSelectedWeapon.weight) }];
+      this.inventory = [...this.inventory, { name: secondSelectedWeapon.name, slots: itemWeightToSlots(secondSelectedWeapon.weight), quantity: 1 }];
     }
   }
 
@@ -317,7 +317,7 @@ export class Character {
       let selectedArmor = getRandomElement(availableArmors);
       this.coins -= selectedArmor.cost;
       this.armor = selectedArmor;
-      this.inventory = [...this.inventory, { name: `${this.armor.name} Armor`, slots: this.armor.armorClass }]
+      this.inventory = [...this.inventory, { name: `${this.armor.name} Armor`, slots: this.armor.armorClass, quantity: 1 }]
     } else {
       this.armor = null;
     }
@@ -325,14 +325,14 @@ export class Character {
     if (this.class == "Strong" && shield.cost <= this.coins && Math.random() <= config.shieldPurchaseChance) {
       this.coins -= shield.cost;
       this.shield = shield;
-      this.inventory = [...this.inventory, { name: shield.name, slots: 1 }]
+      this.inventory = [...this.inventory, { name: shield.name, slots: 1, quantity: 1 }]
     } else {
       this.shield = null;
     }
 
     if (helmet.cost <= this.coins && Math.random() <= config.helmetPurchaseChance) {
       this.coins -= helmet.cost;
-      this.inventory = [...this.inventory, { name: helmet.name, slots: 1 }]
+      this.inventory = [...this.inventory, { name: helmet.name, slots: 1, quantity: 1 }]
     }
 
     if (this.armor === null) {
@@ -343,26 +343,31 @@ export class Character {
   }
 
   generateItems(): void {
-    const defaultItems: { name: string, slots: number }[] = [
+    const defaultItems: { name: string, slots: number, quantity: number }[] = [
       {
-        name: "Ration (2)",
-        slots: 1,
+        name: "Ration",
+        slots: 0.5,
+        quantity: 2,
       },
       {
         name: "Waterskin",
         slots: 0.5,
+        quantity: 1,
       },
       {
-        name: "Torch (2)",
-        slots: 1,
+        name: "Torch",
+        slots: 0.5,
+        quantity: 2,
       },
       {
         name: "Flint & steel",
         slots: 0,
+        quantity: 1,
       },
       {
         name: "Blanket",
         slots: 1,
+        quantity: 1,
       }
     ];
 
