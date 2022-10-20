@@ -31,6 +31,7 @@ export class Character {
   attackValue: number;
   armorClass: number;
   savingThrow: number;
+  movementRate: number;
   attributes: Attributes;
   languages: string[];
   abilities: string[];
@@ -158,20 +159,24 @@ export class Character {
     let remainingGroupCount: number = this.classEntry.groupCount + bonusGroupCount;
 
     // Generate species.
+    let species: { name: string, languages: string[], isDefault: boolean, movementRate: number };
     if (Math.random() <= config.nonDefaultSpeciesChance) {
-      this.species = getRandomElement(specieses.filter(species => !species.isDefault)).name;
-      groups.push(this.species);
+      species = getRandomElement(specieses.filter(species => !species.isDefault));
+      groups.push(species.name);
       remainingGroupCount--;
       // Select two random attributes. Species is the first group so we don't have
       // to worry about groups on other attributes, just selecting two different
       // attributes.
       let attribute1: string = getRandomAttribute();
       let attribute2: string = getRandomAttribute([attribute1]);
-      this.attributes[attribute1].groups.push(this.species);
-      this.attributes[attribute2].groups.push(this.species);
+      this.attributes[attribute1].groups.push(species.name);
+      this.attributes[attribute2].groups.push(species.name);
     } else {
-      this.species = getRandomElement(specieses.filter(species => species.isDefault)).name;
+      species = getRandomElement(specieses.filter(species => species.isDefault));
     }
+    
+    this.species = species.name;
+    this.movementRate = species.movementRate;
 
     // Generate vocation.
     this.vocation = getRandomElement(vocations);
