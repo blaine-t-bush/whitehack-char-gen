@@ -287,12 +287,6 @@
     background-color: #f0e7dc;
     height: 100vh;
     width: 100vw;
-
-    @media (max-width: 760px) {
-      background-clip: content-box;
-      background-image: url("/img/sheet_background.jpg");
-      background-size: cover;
-    }
   }
 
   .character-container {
@@ -312,8 +306,8 @@
     border-image-repeat: round;
 
     @media (max-width: 760px) {
-      background: none;
       border: none;
+      min-height: 100vh;
     }
   }
 
