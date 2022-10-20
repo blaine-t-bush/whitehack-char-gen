@@ -593,6 +593,7 @@
       align-self: center;
       grid-column: 2 / span 1;
       justify-self: center;
+      line-height: 2rem;
 
       @media (max-width: 480px) {
         justify-self: left;
@@ -626,7 +627,9 @@
     &-groups {
       align-self: center;
       grid-column: 3 / span 1;
+      height: unset;
       justify-self: left;
+      line-height: 1.2rem;
 
       &.groups-1 {
         grid-row: 1 / span 1;
