@@ -25,9 +25,10 @@ const affiliations: string[] = [
   "Barrett's Privateers",
   "Black Dogs",
   "Foremost Armigers",
-  "Order of the Sphinx",
   "Order of the Basilisk",
   "Order of the Griffin",
+  "Order of the Rose",
+  "Order of the Sphinx",
   "Order of the Wyrm",
   "Shield-Maidens of Veborg",
   // Tribes
@@ -44,6 +45,19 @@ const affiliations: string[] = [
   "Unseeing Monks",
   // Other
   "Cult of the Black Amphora",
+  "Cult of Set",
+  "Wicker Men",
+  "Black Hands",
+  "White Cloaks",
+  "Sulfur Company",
+  "Merchants' Society",
+  "Highpeak Clan",
+  "Barrett's Privateers",
+  "Scarborough Sorcerers",
+  "Children of the Moon",
+  "Wild Boars",
+  "The Iron Road",
+  "Fog Walkers",
 ];
 
 export {affiliations};

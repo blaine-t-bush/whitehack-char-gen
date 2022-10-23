@@ -1,15 +1,20 @@
 const vocations: string[] = [
   // Warriors
   "Armiger",
+  "Berserker",
   "Cavalier",
+  "Crusader",
   "Duelist",
   "Gladiator",
   "Guard",
+  "Horseman",
+  "Knight",
   "Mercenary",
   "Vigilante",
   // Sorcerers
   "Apiaromancer",
   "Demonologist",
+  "Exorcist",
   "Frost Witch",
   "Mystic",
   "Oracle",
@@ -41,6 +46,7 @@ const vocations: string[] = [
   "Vintner",
   // Trades
   "Butcher",
+  "Chirurgeon",
   "Doctor",
   "Farmer",
   "Jailer",
@@ -52,12 +58,15 @@ const vocations: string[] = [
   "Archaeologist",
   "Astronomer",
   "Botanist",
+  "Numerologist",
   "Occultist",
   "Philosopher",
   "Scholar",
   // Other
   "Cultist",
   "Noble",
+  "Pilgrim",
+  "Inquisitor",
 ];
 
 export {vocations};
