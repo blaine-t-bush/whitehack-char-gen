@@ -10,6 +10,8 @@
     character = new Character(0);
   }
 
+  let useEasierFont = false;
+
   function formatInventory(coins, inventory): string[] {
     let formattedInventory: string[] = [];
     for (const item of inventory) {
@@ -65,7 +67,7 @@
   }
 </script>
 
-<div class="wrapper">
+<div class="wrapper" class:use-easier-font={useEasierFont}>
   <div class="subwrapper">
     <div class="container">
       <div class="form form-name">
@@ -75,6 +77,15 @@
 
       <div class="form form-reroll">
         <button on:click={generateCharacter} class="typed-font">re-roll</button>
+        <label for="" class="typed-font">
+          <input
+            type="checkbox"
+            name="easier-font"
+            id="easier-font"
+            bind:checked={useEasierFont}
+          />
+          <span>easier font</span>
+        </label>
       </div>
 
       <div class="form form-class">
@@ -233,6 +244,19 @@
       &-reroll {
         grid-column: 9 / span 2;
         grid-row: 1;
+
+        font-size: 0.8rem;
+
+        button {
+          background-color: #f0e7dc;
+          border: 1px solid black;
+        }
+
+        label {
+          align-items: center;
+          display: flex;
+          justify-content: space-around;
+        }
       }
 
       &-class {
@@ -290,12 +314,6 @@
         line-height: 1rem;
         height: 1rem;
         text-transform: uppercase;
-      }
-
-      button {
-        background-color: #f0e7dc;
-        border: 1px solid black;
-        grid-row: 1 / span 2;
       }
     }
   }
