@@ -4,19 +4,16 @@
 </script>
 
 <div>
-  <div class="label">{title}</div>
+  <div class="label typed-font">{title}</div>
   <ul class="entries">
     {#each list as entry}
-      <li class="entry">{entry}</li>
+      <li class="entry handwritten-font">{entry}</li>
     {/each}
   </ul>
 </div>
 
 <style lang="scss">
-  @import url("https://fonts.googleapis.com/css2?family=Homemade+Apple&display=swap");
-
   .label {
-    font-family: "Courier New", Courier, monospace;
     font-size: 0.8rem;
     line-height: 1rem;
     height: 1rem;
@@ -30,7 +27,6 @@
 
     .entry {
       box-sizing: border-box;
-      font-family: "Homemade Apple", sans-serif;
       font-size: 1rem;
       line-height: 2rem;
       list-style-type: none;
@@ -38,8 +34,6 @@
       &::before {
         content: "- ";
       }
-      // height: 1.5rem;
-      // padding: 0 0.5rem;
     }
   }
 </style>

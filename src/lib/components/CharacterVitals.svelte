@@ -8,34 +8,32 @@
 
 <div class="container">
   <div class="form">
-    <div class="form-label">HP</div>
-    <div class="form-entry">{hitPoints}</div>
+    <div class="form-label typed-font">HP</div>
+    <div class="form-entry handwritten-font">{hitPoints}</div>
   </div>
 
   <div class="form">
-    <div class="form-label">AV</div>
-    <div class="form-entry">{attackValue}</div>
+    <div class="form-label typed-font">AV</div>
+    <div class="form-entry handwritten-font">{attackValue}</div>
   </div>
 
   <div class="form">
-    <div class="form-label">AC</div>
-    <div class="form-entry">{armorClass}</div>
+    <div class="form-label typed-font">AC</div>
+    <div class="form-entry handwritten-font">{armorClass}</div>
   </div>
 
   <div class="form">
-    <div class="form-label">ST</div>
-    <div class="form-entry">{savingThrow}</div>
+    <div class="form-label typed-font">ST</div>
+    <div class="form-entry handwritten-font">{savingThrow}</div>
   </div>
 
   <div class="form">
-    <div class="form-label">MV</div>
-    <div class="form-entry">{movementRate}</div>
+    <div class="form-label typed-font">MV</div>
+    <div class="form-entry handwritten-font">{movementRate}</div>
   </div>
 </div>
 
 <style lang="scss">
-  @import url("https://fonts.googleapis.com/css2?family=Homemade+Apple&display=swap");
-
   .container {
     column-gap: 15px;
     display: grid;
@@ -65,7 +63,6 @@
 
       &-entry {
         box-sizing: border-box;
-        font-family: "Homemade Apple", sans-serif;
         font-size: 1rem;
         line-height: 2rem;
         height: 1.5rem;
@@ -73,7 +70,6 @@
       }
 
       &-label {
-        font-family: "Courier New", Courier, monospace;
         font-size: 0.8rem;
         line-height: 1rem;
         height: 1rem;

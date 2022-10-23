@@ -34,49 +34,49 @@
 </script>
 
 <div class="container">
-  <div class="form-label">STR</div>
-  <div class="form-entry">{attributes.str.score}</div>
-  <div class="form-groups">
+  <div class="form-label typed-font">STR</div>
+  <div class="form-entry handwritten-font">{attributes.str.score}</div>
+  <div class="form-groups handwritten-font">
     {#each attributes.str.groups as group}
       <span>{group}</span>
     {/each}
   </div>
 
-  <div class="form-label">DEX</div>
-  <div class="form-entry">{attributes.dex.score}</div>
-  <div class="form-groups">
+  <div class="form-label typed-font">DEX</div>
+  <div class="form-entry handwritten-font">{attributes.dex.score}</div>
+  <div class="form-groups handwritten-font">
     {#each attributes.dex.groups as group}
       <span>{group}</span>
     {/each}
   </div>
 
-  <div class="form-label">CON</div>
-  <div class="form-entry">{attributes.con.score}</div>
-  <div class="form-groups">
+  <div class="form-label typed-font">CON</div>
+  <div class="form-entry handwritten-font">{attributes.con.score}</div>
+  <div class="form-groups handwritten-font">
     {#each attributes.con.groups as group}
       <span>{group}</span>
     {/each}
   </div>
 
-  <div class="form-label">INT</div>
-  <div class="form-entry">{attributes.int.score}</div>
-  <div class="form-groups">
+  <div class="form-label typed-font">INT</div>
+  <div class="form-entry handwritten-font">{attributes.int.score}</div>
+  <div class="form-groups handwritten-font">
     {#each attributes.int.groups as group}
       <span>{group}</span>
     {/each}
   </div>
 
-  <div class="form-label">WIS</div>
-  <div class="form-entry">{attributes.wis.score}</div>
-  <div class="form-groups">
+  <div class="form-label typed-font">WIS</div>
+  <div class="form-entry handwritten-font">{attributes.wis.score}</div>
+  <div class="form-groups handwritten-font">
     {#each attributes.wis.groups as group}
       <span>{group}</span>
     {/each}
   </div>
 
-  <div class="form-label">CHA</div>
-  <div class="form-entry">{attributes.cha.score}</div>
-  <div class="form-groups">
+  <div class="form-label typed-font">CHA</div>
+  <div class="form-entry handwritten-font">{attributes.cha.score}</div>
+  <div class="form-groups handwritten-font">
     {#each attributes.cha.groups as group}
       <span>{group}</span>
     {/each}
@@ -84,8 +84,6 @@
 </div>
 
 <style lang="scss">
-  @import url("https://fonts.googleapis.com/css2?family=Homemade+Apple&display=swap");
-
   .container {
     column-gap: 15px;
     display: grid;
@@ -94,7 +92,6 @@
 
     .form-entry {
       box-sizing: border-box;
-      font-family: "Homemade Apple", sans-serif;
       font-size: 1rem;
       line-height: 2rem;
       height: 1.5rem;
@@ -102,7 +99,6 @@
     }
 
     .form-label {
-      font-family: "Courier New", Courier, monospace;
       font-size: 0.8rem;
       line-height: 1rem;
       height: 1rem;
@@ -110,7 +106,6 @@
     }
 
     .form-groups {
-      font-family: "Homemade Apple", sans-serif;
       font-size: 1rem;
       line-height: 2rem;
       height: 1.5rem;

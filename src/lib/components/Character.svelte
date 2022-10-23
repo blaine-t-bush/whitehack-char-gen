@@ -69,37 +69,37 @@
   <div class="subwrapper">
     <div class="container">
       <div class="form form-name">
-        <div class="form-entry">{character.name}</div>
-        <div class="form-label">Name</div>
+        <div class="form-entry handwritten-font">{character.name}</div>
+        <div class="form-label typed-font">Name</div>
       </div>
 
       <div class="form form-reroll">
-        <button on:click={generateCharacter}>re-roll</button>
+        <button on:click={generateCharacter} class="typed-font">re-roll</button>
       </div>
 
       <div class="form form-class">
-        <div class="form-entry">{character.class}</div>
-        <div class="form-label">Class</div>
+        <div class="form-entry handwritten-font">{character.class}</div>
+        <div class="form-label typed-font">Class</div>
       </div>
 
       <div class="form form-species">
-        <div class="form-entry">{character.species}</div>
-        <div class="form-label">Species</div>
+        <div class="form-entry handwritten-font">{character.species}</div>
+        <div class="form-label typed-font">Species</div>
       </div>
 
       <div class="form form-vocation">
-        <div class="form-entry">{character.vocation}</div>
-        <div class="form-label">Vocation</div>
+        <div class="form-entry handwritten-font">{character.vocation}</div>
+        <div class="form-label typed-font">Vocation</div>
       </div>
 
       <div class="form form-xp">
-        <div class="form-entry">{character.xp}</div>
-        <div class="form-label">XP</div>
+        <div class="form-entry handwritten-font">{character.xp}</div>
+        <div class="form-label typed-font">XP</div>
       </div>
 
       <div class="form form-level">
-        <div class="form-entry">{character.level}</div>
-        <div class="form-label">LVL</div>
+        <div class="form-entry handwritten-font">{character.level}</div>
+        <div class="form-label typed-font">LVL</div>
       </div>
     </div>
 
@@ -278,7 +278,6 @@
 
       &-entry {
         box-sizing: border-box;
-        font-family: "Homemade Apple", sans-serif;
         font-size: 1rem;
         line-height: 2rem;
         height: 1.5rem;
@@ -287,7 +286,6 @@
 
       &-label {
         border-top: 1px solid black;
-        font-family: "Courier New", Courier, monospace;
         font-size: 0.8rem;
         line-height: 1rem;
         height: 1rem;
@@ -295,8 +293,8 @@
       }
 
       button {
+        background-color: #f0e7dc;
         border: 1px solid black;
-        font-family: "Courier New", Courier, monospace;
         grid-row: 1 / span 2;
       }
     }

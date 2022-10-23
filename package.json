@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "sass src/scss:public/css && vite build",
+    "css": "sass src/scss:public/css",
     "test": "jest",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
